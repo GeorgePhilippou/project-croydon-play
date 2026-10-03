@@ -1,0 +1,17 @@
+{
+  "name": "Project Croydon \u00b7 Flat 5",
+  "short_name": "Croydon",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#152126",
+  "theme_color": "#152126",
+  "icons": [
+    {
+      "src": "assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
