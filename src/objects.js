@@ -8,5 +8,5 @@ export const objects = {
  'jlb-pass': {name:'Mark’s JLB Credit pass',operation:'Back to business',brief:'Mark has lost his JLB Credit pass. Recover this small rectangle of professional self-worth.',room:'mark',found:'Mark’s professional identity has been restored.',caption:'A tiny plastic reminder that Mark had a proper job, proper colleagues and quite a lot of anxiety.'},
  'christmas-turkey': {name:'the Christmas turkey',operation:'Seasonal emergency',brief:'Find the Christmas turkey before Mark turns dinner into a full family incident.',room:'kitchen',found:'Christmas dinner has been saved. The atmosphere may take longer.',caption:'One turkey. The emotional stability of an entire Christmas dinner.'},
 };
-for(const [id,prop] of Object.entries(objects))prop.image=`assets/objects/${id}.png?v=e22ec252d376`;
+for(const [id,prop] of Object.entries(objects))prop.image=`assets/objects/${id}.png?v=4aa395e82b2f`;
 export function pickTarget(previous,random=Math.random){const candidates=Object.keys(objects).filter(id=>id!==previous);return candidates[Math.min(candidates.length-1,Math.floor(random()*candidates.length))];}

@@ -6,7 +6,7 @@ export const rooms = [
  {id:'living',name:'Living room'}, {id:'jez',name:'Jez’s room'}, {id:'kitchen',name:'Kitchen'},
 ];
 function scene(id,name,art,description,links={},hotspots=[]){
- return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.png?v=e22ec252d376`,description,
+ return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.png?v=4aa395e82b2f`,description,
  left:null,right:null,forward:null,...links,hotspots,certainty:'reference-informed generated art'};
 }
 const door=(label,target,x,y,width,height)=>({label,target,x,y,width,height});

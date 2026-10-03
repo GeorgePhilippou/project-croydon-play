@@ -1,8 +1,8 @@
-import { rooms, scenes, startScene } from './scenes.js?v=e22ec252d376';
-import { createNavigator } from './navigation.js?v=e22ec252d376';
-import { bindInput } from './input.js?v=e22ec252d376';
-import { createMission } from './mission.js?v=e22ec252d376';
-import { objects, pickTarget } from './objects.js?v=e22ec252d376';
+import { rooms, scenes, startScene } from './scenes.js?v=4aa395e82b2f';
+import { createNavigator } from './navigation.js?v=4aa395e82b2f';
+import { bindInput } from './input.js?v=4aa395e82b2f';
+import { createMission } from './mission.js?v=4aa395e82b2f';
+import { objects, pickTarget } from './objects.js?v=4aa395e82b2f';
 const nav=createNavigator(scenes,startScene), mission=createMission();
 const $=id=>document.getElementById(id);
 let resultShown=false,lastTarget=null;
