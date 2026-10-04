@@ -1,5 +1,6 @@
 // Series callbacks; visual designs and placements are authored for this game.
 export const objects = {
+ 'jez-demo-tape': {name:'Jez’s demo tape',operation:'Recording career',brief:'Jez needs his homemade demo tape. His next big break is somewhere under yesterday’s clutter.',room:'jez',found:'A future musical sensation has been recovered. The music industry remains unaware.',caption:'One cassette. Several unfinished tracks. An extremely optimistic career plan.'},
  'red-toolbox': {name:'the red toolbox',operation:'Toolbox',brief:'A small domestic emergency. Someone needs the red toolbox.',room:'kitchen',found:'One minor domestic crisis resolved.',caption:'For all the jobs that will definitely get done next weekend.'},
  'jez-bong': {name:'Jez’s bong',operation:'Unfinished business',brief:'Jez has misplaced his bong. Again. Find it before he starts blaming Mark.',room:'jez',found:'Jez can stop accusing everyone else now.',caption:'An essential piece of equipment for a recording session that never quite starts.'},
  'pharaohs-book': {name:'Business Secrets of the Pharaohs',operation:'Literary ambition',brief:'Mark needs his copy of Business Secrets of the Pharaohs. His literary future depends on it.',room:'mark',found:'Mark’s literary ambitions are safe. For now.',caption:'Ancient Egypt. Modern management. A publishing empire waiting to happen.'},
@@ -8,5 +9,5 @@ export const objects = {
  'jlb-pass': {name:'Mark’s JLB Credit pass',operation:'Back to business',brief:'Mark has lost his JLB Credit pass. Recover this small rectangle of professional self-worth.',room:'mark',found:'Mark’s professional identity has been restored.',caption:'A tiny plastic reminder that Mark had a proper job, proper colleagues and quite a lot of anxiety.'},
  'christmas-turkey': {name:'the Christmas turkey',operation:'Seasonal emergency',brief:'Find the Christmas turkey before Mark turns dinner into a full family incident.',room:'kitchen',found:'Christmas dinner has been saved. The atmosphere may take longer.',caption:'One turkey. The emotional stability of an entire Christmas dinner.'},
 };
-for(const [id,prop] of Object.entries(objects))prop.image=`assets/objects/${id}.png?v=c181deae1436`;
+for(const [id,prop] of Object.entries(objects))prop.image=`assets/objects/${id}.png?v=da4a174661bf`;
 export function pickTarget(previous,random=Math.random){const candidates=Object.keys(objects).filter(id=>id!==previous);return candidates[Math.min(candidates.length-1,Math.floor(random()*candidates.length))];}

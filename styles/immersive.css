@@ -15,3 +15,7 @@ header a,.header-actions{pointer-events:auto}.header-actions button{background:#
 .door-hotspot span,.return-zone span{display:none}.door-hotspot:hover,.door-hotspot:active:not(:disabled),.return-zone:hover,.return-zone:active:not(:disabled){background:transparent}
 .door-hotspot:focus-visible,.return-zone:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;background:#dbe8a610}
 @media(max-width:700px){header{flex-wrap:nowrap;gap:8px}.brand{font-size:10px;letter-spacing:.5px}.header-actions{gap:4px}.header-actions button{font-size:10px;padding:6px;min-width:44px}.scene-caption h1{font-size:18px}.mission-hud{max-width:65%}.mission-hud>span:last-child{font-size:11px}}
+
+/* Zoom the live artwork; percentages and hit regions share the same crop. */
+.artwork{overflow:hidden}.area-hotspot{position:absolute;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;border-radius:0;cursor:zoom-in;min-width:44px;min-height:44px}.area-hotspot span{display:none}.area-hotspot:hover,.area-hotspot:active:not(:disabled){background:transparent}.area-hotspot:focus-visible{outline:2px solid var(--accent);outline-offset:-4px}
+.object-hotspot{cursor:default}.object-hotspot:hover{opacity:0}.object-hotspot:focus-visible{opacity:1}.object-hotspot:focus-visible span{background:transparent;border:0;box-shadow:none;font-size:0}.object-hotspot:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}

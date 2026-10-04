@@ -1,37 +1,43 @@
-import { bindView } from './view.js?v=c181deae1436';
-import { rooms, scenes, startScene } from './scenes.js?v=c181deae1436';
-import { createNavigator } from './navigation.js?v=c181deae1436';
-import { bindInput } from './input.js?v=c181deae1436';
-import { createMission } from './mission.js?v=c181deae1436';
-import { objects, pickTarget } from './objects.js?v=c181deae1436';
+import { bindView } from './view.js?v=da4a174661bf';
+import { rooms, scenes, startScene } from './scenes.js?v=da4a174661bf';
+import { createNavigator } from './navigation.js?v=da4a174661bf';
+import { bindInput } from './input.js?v=da4a174661bf';
+import { createMission } from './mission.js?v=da4a174661bf';
+import { objects, pickTarget } from './objects.js?v=da4a174661bf';
 const nav=createNavigator(scenes,startScene), mission=createMission();
 const $=id=>document.getElementById(id);
 let resultShown=false,lastTarget=null;
 const discovered=new Set();
+const placeCount=()=>new Set([...nav.visited].map(id=>scenes[id].room)).size;
 function closeDialogs(){document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());}
 function render(){
  const scene=nav.current;
+ $('artwork').dataset.crop=JSON.stringify(scene.crop??null);
  $('backdrop').src=scene.background;
+ document.dispatchEvent(new Event('sceneviewchange'));
+ $('scene').dataset.detail=scene.detail?'true':'false';
  $('scene-fill').style.backgroundImage=`url("${scene.background}")`;
  $('backdrop').alt=`${scene.name}. ${scene.description}`;
  $('scene').dataset.scene=scene.id;
  $('room-name').textContent=scene.name;$('view-description').textContent=scene.description;
- $('progress').textContent=`${nav.visited.size}/${rooms.length} places · ${discovered.size}/${Object.keys(objects).length} objects`;
+ $('progress').textContent=`${placeCount()}/${rooms.length} places · ${discovered.size}/${Object.keys(objects).length} objects`;
  $('map-location').textContent=scene.name;
  document.querySelectorAll('[data-map-room]').forEach(el=>el.classList.toggle('current',el.dataset.mapRoom===(scene.room==='vestibule'?'entrance':scene.room)));
  document.querySelectorAll('[data-action]').forEach(button=>{button.disabled=button.dataset.action==='back'?!nav.canBack:!scene[button.dataset.action];});
  $('hotspots').replaceChildren();
  $('return-zone').hidden=!nav.canBack;
+ $('return-zone').setAttribute('aria-label',scene.detail?'Return to room':'Return to previous scene');
  $('return-zone').querySelector('span').textContent=scene.room==='hall'?'↓ Back to entrance':'↓ Back to hallway';
  for(const h of scene.hotspots){
   const button=document.createElement('button');
   const label=document.createElement('span');label.textContent=h.object?'⌕':h.label;button.append(label);
-  button.className=h.object?'object-hotspot':'door-hotspot';
+  button.className=h.object?'object-hotspot':h.detail?'area-hotspot':'door-hotspot';
   if(h.object)button.dataset.object=h.object;
+  if(h.detail)button.dataset.detail=h.target;
   button.setAttribute('aria-label',h.label);
   button.style.left=`${h.x}%`;button.style.top=`${h.y}%`;
   button.style.width=`${h.width}%`;button.style.height=`${h.height}%`;
-  button.addEventListener('click',()=>{if(h.object)inspect(h.object);else{nav.go(h.target);render();$('status').textContent=nav.current.name;}});$('hotspots').append(button);
+  button.addEventListener('click',()=>{if(['won','lost'].includes(mission.status.state)){updateTimer();return;}if(h.object)inspect(h.object);else{nav.go(h.target);render();$('status').textContent=nav.current.name;}});$('hotspots').append(button);
  }
  $('scene').classList.remove('is-changing');void $('scene').offsetWidth;$('scene').classList.add('is-changing');updateTimer();
 }
@@ -39,7 +45,7 @@ function inspect(object){
  const prop=objects[object],status=mission.status;
  if(['won','lost'].includes(status.state)){updateTimer();return;}
  discovered.add(object);
- $('progress').textContent=`${nav.visited.size}/${rooms.length} places · ${discovered.size}/${Object.keys(objects).length} objects`;
+ $('progress').textContent=`${placeCount()}/${rooms.length} places · ${discovered.size}/${Object.keys(objects).length} objects`;
  if(mission.inspect(object)){updateTimer();showResult();return;}
  if(status.state==='running')mission.pause();
  updateTimer();
@@ -84,13 +90,14 @@ bindInput(action=>{
  else $('status').textContent=action==='back'?'You are at the entrance.':nav.canBack?'No doorway in that direction. Use ↓ to return to the hallway.':'Choose a visible doorway.';
 },()=>{
  $('control-heading').textContent='TAP DOORWAYS AND OBJECTS';
- $('control-hint').textContent='Tap a doorway to move. Tap an object to inspect. Tap the bottom edge to return.';
+ $('control-hint').textContent='Tap a doorway to move. Tap furniture to look closer, then search for objects. Tap the bottom edge to step back.';
 });
 document.addEventListener('keydown',event=>{
  if(event.key.toLowerCase()!=='e'||event.repeat||event.ctrlKey||event.metaKey||event.altKey||document.querySelector('dialog[open]')||event.target.closest('input,textarea,select'))return;
  const focused=document.activeElement;
- if(focused?.dataset.object){event.preventDefault();inspect(focused.dataset.object);}
- else{const spot=$('hotspots').querySelector('.object-hotspot');if(spot){event.preventDefault();spot.focus();$('status').textContent='Inspection spot selected. Press E or Enter to examine it.';}else $('status').textContent='Nothing to inspect here. Try one of the rooms.';}
+ if(focused?.dataset.detail){event.preventDefault();nav.go(focused.dataset.detail);render();}
+ else if(focused?.dataset.object){event.preventDefault();inspect(focused.dataset.object);}
+ else{const spot=$('hotspots').querySelector('.area-hotspot,.object-hotspot');if(spot){event.preventDefault();spot.focus();$('status').textContent='Inspection area selected. Press E or Enter to look closer.';}else $('status').textContent='Nothing to inspect here. Try one of the rooms.';}
 });
 for(const [id,prop] of Object.entries(objects)){const option=document.createElement('option');option.value=id;option.textContent=prop.name;$('mission-choice').append(option);}
 function updateBrief(){$('hunt-brief').textContent=objects[$('mission-choice').value]?.brief??'A randomly chosen object has gone missing. Find it in the flat before 60 seconds run out.';}

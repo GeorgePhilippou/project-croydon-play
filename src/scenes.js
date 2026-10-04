@@ -7,7 +7,7 @@ export const rooms = [
  {id:'living',name:'Living room'}, {id:'jez',name:'Jez’s room'}, {id:'kitchen',name:'Kitchen'},
 ];
 function scene(id,name,art,description,links={},hotspots=[]){
- return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.png?v=c181deae1436`,description,
+ return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.png?v=da4a174661bf`,description,
  left:null,right:null,forward:null,...links,hotspots,certainty:'reference-informed generated art'};
 }
 const door=(label,target,x,y,width,height)=>({label,target,x,y,width,height});
@@ -26,4 +26,27 @@ export const scenes={
  'kitchen-0':scene('kitchen-0','Kitchen','kitchen-v4','Green walls, blue cupboards and a checked table.',{},[
   {object:'red-toolbox',label:'Inspect the open shelf',x:85,y:38,width:18,height:16},{object:'christmas-turkey',label:'Inspect the roasting tin',x:75,y:55,width:18,height:15}]),
 };
+
+// Detail views are local inspections, never new architectural connections.
+function detail(id,parent,name,crop,objects) {
+ const base=scenes[parent];
+ const spots=objects.map(object=>{
+  const h=base.hotspots.find(h=>h.object===object);
+  return {...h,x:(h.x-crop.x)/crop.width*100,y:(h.y-crop.y)/crop.height*100,width:h.width/crop.width*100,height:h.height/crop.height*100};
+ });
+ scenes[id]={...base,id,name,description:'Search the detail, then tap the bottom edge or press ↓ to step back.',left:null,right:null,forward:null,hotspots:spots,crop,parent,detail:true};
+}
+detail('mark-desk','mark-0','Mark’s desk',{x:0,y:30,width:34,height:38},['pharaohs-book','jlb-pass']);
+detail('living-sofa','living-0','Beside the sofa',{x:65,y:55,width:30,height:40},['hans-trainers']);
+detail('kitchen-shelf','kitchen-0','Kitchen shelf',{x:69,y:16,width:31,height:38},['red-toolbox']);
+detail('kitchen-table','kitchen-0','Kitchen table',{x:60,y:35,width:40,height:43},['christmas-turkey']);
+detail('jez-records','jez-0','Record shelves',{x:5,y:25,width:20,height:44},['jez-bong']);
+detail('jez-wall','jez-0','Jez’s wall',{x:22,y:9,width:9,height:24},['rainbow-flyer']);
+scenes['jez-keyboard']={...scene('jez-keyboard','Jez’s keyboard','jez-keyboard-detail','Search the recording clutter.',{},[{object:'jez-demo-tape',label:'Inspect the small item beneath the papers',x:11,y:45,width:10,height:10}]),room:'jez',parent:'jez-0',detail:true};
+const area=(label,target,x,y,width,height)=>({label,target,x,y,width,height,detail:true});
+scenes['mark-0'].hotspots=[area('Look closer at the desk','mark-desk',17,52,32,35)];
+scenes['living-0'].hotspots=[area('Look closer beside the sofa','living-sofa',80,72,28,30)];
+scenes['kitchen-0'].hotspots=[area('Look closer at the shelf','kitchen-shelf',84,34,28,30),area('Look closer at the table','kitchen-table',75,61,30,22)];
+scenes['jez-0'].hotspots=[area('Look closer at the record shelves','jez-records',13.5,49,16,45),area('Look closer at the wall','jez-wall',27,21,9,24),area('Look closer at the keyboard','jez-keyboard',42,48,28,15)];
+
 export const startScene='vestibule-0';
