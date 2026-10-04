@@ -54,3 +54,8 @@ header a,.header-actions{pointer-events:auto}.header-actions button{background:#
 #retry-art{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%)}#retry-art[hidden]{display:none}
 
 .scenery-interior{border-width:1px}
+
+/* Return stays at the screen edge even when detail artwork is letterboxed. */
+#return-zone{position:fixed;height:8%;z-index:4;min-height:48px}
+.scene[data-detail="true"] #return-zone span{display:block;font-size:12px;bottom:max(14px,env(safe-area-inset-bottom));padding:7px 13px;background:#172016c9}
+#hotspots .baked-cover{background:transparent;box-shadow:none;clip-path:none;rotate:0;border:0}

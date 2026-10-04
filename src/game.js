@@ -1,15 +1,16 @@
-import { bindView } from './view.js?v=9f8157d5a6c0';
-import { rooms, scenes, startScene } from './scenes.js?v=9f8157d5a6c0';
-import { createNavigator } from './navigation.js?v=9f8157d5a6c0';
-import { bindInput } from './input.js?v=9f8157d5a6c0';
-import { createMission } from './mission.js?v=9f8157d5a6c0';
-import { objects, pickTarget } from './objects.js?v=9f8157d5a6c0';
-import { hunts } from './hunts.js?v=9f8157d5a6c0';
-import { createProgress } from './progress.js?v=9f8157d5a6c0';
-import { visibleHotspots, toggleCover } from './search.js?v=9f8157d5a6c0';
-import { createAudio } from './audio.js?v=9f8157d5a6c0';
-import { createAssetCache,loadImage,nearbyAssets } from './assets.js?v=9f8157d5a6c0';
-import { physicalLayers } from './layers.js?v=9f8157d5a6c0';
+import { bindView } from './view.js?v=1111402e68f3';
+import { rooms, scenes, startScene } from './scenes.js?v=1111402e68f3';
+import { createNavigator } from './navigation.js?v=1111402e68f3';
+import { sceneBackground } from './backgrounds.js?v=1111402e68f3';
+import { bindInput } from './input.js?v=1111402e68f3';
+import { createMission } from './mission.js?v=1111402e68f3';
+import { objects, pickTarget } from './objects.js?v=1111402e68f3';
+import { hunts } from './hunts.js?v=1111402e68f3';
+import { createProgress } from './progress.js?v=1111402e68f3';
+import { visibleHotspots, toggleCover } from './search.js?v=1111402e68f3';
+import { createAudio } from './audio.js?v=1111402e68f3';
+import { createAssetCache,loadImage,nearbyAssets } from './assets.js?v=1111402e68f3';
+import { physicalLayers } from './layers.js?v=1111402e68f3';
 const assets=createAssetCache(loadImage);
 let loadingNotice=null;
 const nav=createNavigator(scenes,startScene), mission=createMission(), audio=createAudio();
@@ -23,12 +24,12 @@ function closeDialogs(){document.querySelectorAll('dialog[open]').forEach(dialog
 function position(el,h){el.style.left=`${h.x}%`;el.style.top=`${h.y}%`;el.style.width=`${h.width}%`;el.style.height=`${h.height}%`;}
 function collection(){return `${placeCount()}/${rooms.length} places · ${discovered.size}/${Object.keys(objects).length} objects`;}
 function render(){
- const scene=nav.current;
+ const scene=nav.current,background=sceneBackground(scene,opened);
  $('artwork').dataset.crop=JSON.stringify(scene.crop??null);
- if($('backdrop').getAttribute('src')!==scene.background){$('backdrop').dataset.failed='';$('backdrop').src=scene.background;}
+ if($('backdrop').getAttribute('src')!==background){$('backdrop').dataset.failed='';$('backdrop').src=background;}
  $('scene').dataset.detail=scene.detail?'true':'false';
  document.dispatchEvent(new Event('sceneviewchange'));
- $('scene-fill').style.backgroundImage=`url("${scene.background}")`;
+ $('scene-fill').style.backgroundImage=`url("${background}")`;
  $('backdrop').alt=`${scene.name}. ${scene.description}`;
  $('scene').dataset.scene=scene.id;
  $('room-name').textContent=scene.name;$('view-description').textContent=scene.description;
@@ -50,7 +51,7 @@ function render(){
  for(const h of visibleHotspots(scene,opened)){
   const button=document.createElement('button');
   const label=document.createElement('span');label.textContent=h.object?'⌕':h.label;button.append(label);
-  button.className=h.cover?`search-cover cover-${h.kind}`:h.object?'object-hotspot':h.detail?'area-hotspot':'door-hotspot';
+  button.className=h.cover?`search-cover cover-${h.kind}${h.baked?' baked-cover':''}`:h.object?'object-hotspot':h.detail?'area-hotspot':'door-hotspot';
   if(h.object)button.dataset.object=h.object;if(h.detail)button.dataset.detail=h.target;if(h.cover)button.dataset.cover=h.cover;
   button.setAttribute('aria-label',h.label);position(button,h);
   if(h.coverArt){const img=document.createElement('img');img.src=h.coverArt;img.alt='';button.append(img);}
@@ -65,7 +66,7 @@ function render(){
  audio.setRoom(scene.room);
  for(const img of $('artwork').querySelectorAll('img')){img.addEventListener('load',syncLoading,{once:true});img.addEventListener('error',()=>{img.dataset.failed='true';syncLoading();},{once:true});}
  syncLoading();
- assets.request(scene.background,true);
+ assets.request(background,true);
  for(const url of nearbyAssets(scene,scenes,objects))assets.request(url);
 
  $('scene').classList.remove('is-changing');void $('scene').offsetWidth;$('scene').classList.add('is-changing');updateTimer();

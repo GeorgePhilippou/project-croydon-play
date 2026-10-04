@@ -1,3 +1,4 @@
+import {backgroundAssets} from './backgrounds.js?v=1111402e68f3';
 // Deduplicate requests and warm compressed assets before the next doorway tap.
 export function createAssetCache(load,concurrency=3){
  const entries=new Map(),queue=[];let active=0;
@@ -10,5 +11,5 @@ export function createAssetCache(load,concurrency=3){
 export function loadImage(url){return new Promise(resolve=>{const image=new Image();image.onload=()=>resolve(true);image.onerror=()=>resolve(false);image.src=url;});}
 export function nearbyAssets(scene,graph,objects){
  const ids=[scene.id,scene.parent,scene.left,scene.right,scene.forward,...scene.hotspots.map(h=>h.target)].filter(Boolean);
- return [...new Set(ids.flatMap(id=>{const s=graph[id];return [s.background,...s.hotspots.flatMap(h=>[h.coverArt,h.object?objects[h.object]?.image:null])].filter(Boolean);} ))];
+ return [...new Set(ids.flatMap(id=>{const s=graph[id];return [...backgroundAssets(s),...s.hotspots.flatMap(h=>[h.coverArt,h.object?objects[h.object]?.image:null])].filter(Boolean);} ))];
 }

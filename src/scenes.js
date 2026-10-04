@@ -7,7 +7,7 @@ export const rooms = [
  {id:'living',name:'Living room'}, {id:'jez',name:'Jez’s room'}, {id:'kitchen',name:'Kitchen'},
 ];
 function scene(id,name,art,description,links={},hotspots=[]){
- return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.webp?v=9f8157d5a6c0`,description,
+ return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.webp?v=1111402e68f3`,description,
  left:null,right:null,forward:null,...links,hotspots,certainty:'reference-informed generated art'};
 }
 const door=(label,target,x,y,width,height)=>({label,target,x,y,width,height});
@@ -66,7 +66,7 @@ local('living-media','living-0','Living-room media shelves',{x:13,y:43,width:25,
 local('mark-drawer','mark-desk','Inside Mark’s desk',{x:25,y:48,width:8,height:10},[
  cover('drawer','drawer','Open the desk drawer',50,58,80,35),
  prop('sofa-receipt','Inspect the folded statement',50,58,30,28,'drawer')]);
-scenes['kitchen-counter'].hotspots[0].coverArt=`assets/objects/takeaway-bag.webp?v=9f8157d5a6c0`;
+scenes['kitchen-counter'].hotspots[0].coverArt=`assets/objects/takeaway-bag.webp?v=1111402e68f3`;
 scenes['mark-drawer'].compartment={when:'drawer',x:50,y:58,width:80,height:35};
 local('mark-floor','mark-desk','Under Mark’s desk',{x:13,y:58,width:22,height:27},[
  prop('mark-shredder','Inspect the small appliance',57,57,38,40)]);
@@ -83,7 +83,7 @@ scenes['jez-keyboard'].sourceCrop={x:28,y:39,width:28,height:22};
 scenes['jez-keyboard'].hotspots[0].previewSprite=true;
 
 for(const id of ['mark-desk','living-sofa','kitchen-shelf','kitchen-table','jez-records','jez-wall','kitchen-counter','living-media','mark-drawer','mark-floor']){
- scenes[id].background=`assets/scenes/styled/${id}-hd.webp?v=9f8157d5a6c0`;scenes[id].crop=null;
+ scenes[id].background=`assets/scenes/styled/${id}-hd.webp?v=1111402e68f3`;scenes[id].crop=null;
 }
 const align=(sceneId,object,x,y,width,height)=>Object.assign(scenes[sceneId].hotspots.find(h=>h.object===object),{x,y,width,height});
 align('mark-desk','pharaohs-book',12,60,22,9);align('mark-desk','jlb-pass',65,48,10,8);
@@ -92,7 +92,7 @@ align('kitchen-shelf','red-toolbox',74,74,43,25);
 align('kitchen-table','christmas-turkey',53,61,34,22);
 align('jez-records','jez-bong',18,44,13,31);
 align('jez-wall','rainbow-flyer',50,52,50,58);
-scenes['jez-wall'].background=`assets/scenes/styled/jez-wall-hd-v2.webp?v=9f8157d5a6c0`;
+scenes['jez-wall'].background=`assets/scenes/styled/jez-wall-hd-v2.webp?v=1111402e68f3`;
 align('kitchen-counter','four-naan',45,70,22,13);align('kitchen-counter','christmas-cauliflower',70,60,16,18);
 Object.assign(scenes['kitchen-counter'].hotspots[0],{x:57,y:65,width:50,height:31});
 align('living-media','heat-dvd',72,65,12,19);Object.assign(scenes['living-media'].hotspots[0],{x:72,y:65,width:20,height:20});
@@ -103,12 +103,23 @@ Object.assign(scenes['mark-desk'].hotspots.find(h=>h.target==='mark-drawer'),{x:
 
 scenes['mark-drawer'].projections={'mark-desk':{x:79,y:55,width:13,height:7},'mark-0':{x:29,y:53,width:5,height:3}};
 
-scenes['mark-floor'].background=`assets/scenes/styled/mark-floor-hd-v2.webp?v=9f8157d5a6c0`;
+scenes['mark-floor'].background=`assets/scenes/styled/mark-floor-hd-v2.webp?v=1111402e68f3`;
 align('mark-floor','mark-shredder',81,64,18,24);
 
 // Calibrated separately for the wider camera: these props sit on the worktop.
 scenes['kitchen-counter'].hotspots[0].previews={'kitchen-0':{x:23,y:40.5,width:12,height:8}};
 scenes['kitchen-counter'].hotspots.find(h=>h.object==='four-naan').previews={'kitchen-0':{x:19.5,y:45,width:6,height:3}};
 scenes['kitchen-counter'].hotspots.find(h=>h.object==='christmas-cauliflower').previews={'kitchen-0':{x:28,y:40,width:3.2,height:4.5}};
+
+// These two props are painted into the matching camera view, never overlaid.
+scenes['mark-0'].background=`assets/scenes/styled/mark-v4.webp?v=1111402e68f3`;
+scenes['mark-floor'].background=`assets/scenes/styled/mark-floor-hd-v3.webp?v=1111402e68f3`;
+Object.assign(scenes['mark-floor'].hotspots[0],{sprite:false,baked:true,x:90,y:36,width:18,height:30});
+scenes['kitchen-0'].background=`assets/scenes/styled/kitchen-v5.webp?v=1111402e68f3`;
+scenes['kitchen-0'].revealedBackground={when:'takeaway',image:`assets/scenes/styled/kitchen-v4.webp?v=1111402e68f3`};
+scenes['kitchen-counter'].background=`assets/scenes/styled/kitchen-counter-hd-v2.webp?v=1111402e68f3`;
+scenes['kitchen-counter'].revealedBackground={when:'takeaway',image:`assets/scenes/styled/kitchen-counter-hd.webp?v=1111402e68f3`};
+Object.assign(scenes['kitchen-counter'].hotspots[0],{baked:true,x:58,y:55,width:21,height:24});
+delete scenes['kitchen-counter'].hotspots[0].coverArt;
 
 export const startScene='vestibule-0';

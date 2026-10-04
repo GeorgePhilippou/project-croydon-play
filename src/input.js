@@ -1,4 +1,4 @@
-const keys = { ArrowLeft:'left', ArrowRight:'right', ArrowUp:'forward', ArrowDown:'back', a:'left', d:'right', w:'forward', s:'back' };
+const keys = { ArrowLeft:'left', ArrowRight:'right', ArrowUp:'forward', ArrowDown:'back', Escape:'back', a:'left', d:'right', w:'forward', s:'back' };
 export function bindInput(onMove, onTouch = () => {}) {
   function enableTouch() { document.documentElement.dataset.input = "touch"; onTouch(); }
   if (window.matchMedia("(any-pointer: coarse)").matches) enableTouch();

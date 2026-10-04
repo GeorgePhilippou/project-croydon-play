@@ -20,6 +20,7 @@ export function physicalLayers(scene,graph,opened){
   };
   if(child.compartment&&opened.has(child.compartment.when))layers.push({...project(child.compartment),kind:'interior',origin:child.id});
   for(const h of child.hotspots){
+   if(h.baked)continue;
    if((h.when&&!opened.has(h.when))||(h.unless&&opened.has(h.unless)))continue;
    if(h.sprite||(h.previewSprite&&child.id!==scene.id))layers.push({...project(h),kind:'sprite',origin:child.id});
    if(h.cover&&(child.id===scene.id||h.kind!=='drawer'))layers.push({...project(h),kindName:h.kind,kind:'cover',origin:child.id});
