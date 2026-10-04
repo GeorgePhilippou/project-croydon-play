@@ -1,4 +1,4 @@
-import { objects } from './objects.js?v=4aa395e82b2f';
+import { objects } from './objects.js?v=c181deae1436';
 // An injected monotonic clock enforces the deadline even between timer ticks.
 export function createMission(now = () => performance.now()) {
  let state='idle', target=null, started=0, deadline=0, elapsed=0, pausedAt=0;

@@ -1,8 +1,9 @@
-import { rooms, scenes, startScene } from './scenes.js?v=4aa395e82b2f';
-import { createNavigator } from './navigation.js?v=4aa395e82b2f';
-import { bindInput } from './input.js?v=4aa395e82b2f';
-import { createMission } from './mission.js?v=4aa395e82b2f';
-import { objects, pickTarget } from './objects.js?v=4aa395e82b2f';
+import { bindView } from './view.js?v=c181deae1436';
+import { rooms, scenes, startScene } from './scenes.js?v=c181deae1436';
+import { createNavigator } from './navigation.js?v=c181deae1436';
+import { bindInput } from './input.js?v=c181deae1436';
+import { createMission } from './mission.js?v=c181deae1436';
+import { objects, pickTarget } from './objects.js?v=c181deae1436';
 const nav=createNavigator(scenes,startScene), mission=createMission();
 const $=id=>document.getElementById(id);
 let resultShown=false,lastTarget=null;
@@ -11,12 +12,13 @@ function closeDialogs(){document.querySelectorAll('dialog[open]').forEach(dialog
 function render(){
  const scene=nav.current;
  $('backdrop').src=scene.background;
+ $('scene-fill').style.backgroundImage=`url("${scene.background}")`;
  $('backdrop').alt=`${scene.name}. ${scene.description}`;
  $('scene').dataset.scene=scene.id;
  $('room-name').textContent=scene.name;$('view-description').textContent=scene.description;
  $('progress').textContent=`${nav.visited.size}/${rooms.length} places · ${discovered.size}/${Object.keys(objects).length} objects`;
  $('map-location').textContent=scene.name;
- document.querySelectorAll('[data-map-room]').forEach(el=>el.classList.toggle('current',el.dataset.mapRoom===scene.room));
+ document.querySelectorAll('[data-map-room]').forEach(el=>el.classList.toggle('current',el.dataset.mapRoom===(scene.room==='vestibule'?'entrance':scene.room)));
  document.querySelectorAll('[data-action]').forEach(button=>{button.disabled=button.dataset.action==='back'?!nav.canBack:!scene[button.dataset.action];});
  $('hotspots').replaceChildren();
  $('return-zone').hidden=!nav.canBack;
@@ -26,7 +28,7 @@ function render(){
   const label=document.createElement('span');label.textContent=h.object?'⌕':h.label;button.append(label);
   button.className=h.object?'object-hotspot':'door-hotspot';
   if(h.object)button.dataset.object=h.object;
-  button.setAttribute('aria-label',h.label);button.title=h.label;
+  button.setAttribute('aria-label',h.label);
   button.style.left=`${h.x}%`;button.style.top=`${h.y}%`;
   button.style.width=`${h.width}%`;button.style.height=`${h.height}%`;
   button.addEventListener('click',()=>{if(h.object)inspect(h.object);else{nav.go(h.target);render();$('status').textContent=nav.current.name;}});$('hotspots').append(button);
@@ -104,4 +106,4 @@ $('map').addEventListener('click',()=>$('map-dialog').showModal());$('close-map'
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('close-help').addEventListener('click',()=>$('help-dialog').close());
 // Warm the local image cache without blocking the opening screen.
 for(const scene of Object.values(scenes)){const img=new Image();img.src=scene.background;}
-setInterval(updateTimer,100);render();$('start-dialog').showModal();
+bindView();setInterval(updateTimer,100);render();$('start-dialog').showModal();

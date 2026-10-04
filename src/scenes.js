@@ -1,16 +1,18 @@
 // Directional door choices are derived from the supplied Apollo House Flat 5 plan.
 // Both hallway cameras face north. Backgrounds are generated art, not reference screenshots.
 export const rooms = [
+ {id:'vestibule',name:'Entrance vestibule'},
  {id:'entrance',name:'Lower hallway'}, {id:'hall',name:'Upper hallway'},
  {id:'mark',name:'Mark’s room'}, {id:'bathroom',name:'Bathroom'},
  {id:'living',name:'Living room'}, {id:'jez',name:'Jez’s room'}, {id:'kitchen',name:'Kitchen'},
 ];
 function scene(id,name,art,description,links={},hotspots=[]){
- return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.png?v=4aa395e82b2f`,description,
+ return {id,room:id.split('-')[0],name,background:`assets/scenes/styled/${art}.png?v=c181deae1436`,description,
  left:null,right:null,forward:null,...links,hotspots,certainty:'reference-informed generated art'};
 }
 const door=(label,target,x,y,width,height)=>({label,target,x,y,width,height});
 export const scenes={
+ 'vestibule-0':scene('vestibule-0','Entrance','entrance-west','Just inside the front door. Turn right into the hallway.',{right:'entrance-0'},[door('Turn right into the hallway','entrance-0',84,47,28,78)]),
  'entrance-0':scene('entrance-0','Lower hallway','hall-lower-v2','Just inside the front door.',
  {left:'mark-0',right:'bathroom-0',forward:'hall-0'},[
   door('← Mark’s room','mark-0',11,45,17,76),door('Bathroom →','bathroom-0',90,45,17,76),door('Hallway ↑','hall-0',53,53,38,60)]),
@@ -24,4 +26,4 @@ export const scenes={
  'kitchen-0':scene('kitchen-0','Kitchen','kitchen-v4','Green walls, blue cupboards and a checked table.',{},[
   {object:'red-toolbox',label:'Inspect the open shelf',x:85,y:38,width:18,height:16},{object:'christmas-turkey',label:'Inspect the roasting tin',x:75,y:55,width:18,height:15}]),
 };
-export const startScene='entrance-0';
+export const startScene='vestibule-0';
