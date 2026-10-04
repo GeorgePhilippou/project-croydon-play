@@ -1,6 +1,6 @@
 // Keep hit rectangles anchored to the image in any screen shape.
-export function fitArtwork(width,height,ratio) {
- const w=Math.min(width,height*ratio);
+export function fitArtwork(width,height,ratio,maxWidth=Infinity,maxHeight=Infinity) {
+ const w=Math.min(width,height*ratio,maxWidth,maxHeight*ratio);
  return {width:w,height:w/ratio};
 }
 export function cropPresentation(crop={x:0,y:0,width:100,height:100},ratio=1.6) {
@@ -12,7 +12,9 @@ export function bindView() {
   const bounds=document.getElementById('scene').getBoundingClientRect();
   const crop=JSON.parse(art.dataset.crop||'null')||undefined;
   const view=cropPresentation(crop,(image.naturalWidth||1600)/(image.naturalHeight||1000));
-  const size=fitArtwork(bounds.width,bounds.height,view.ratio);
+  const sharp=document.getElementById('scene').dataset.detail==='true';
+  const density=window.devicePixelRatio||1;
+  const size=fitArtwork(bounds.width,bounds.height,view.ratio,sharp?image.naturalWidth/density:Infinity,sharp?image.naturalHeight/density:Infinity);
   Object.assign(image.style,{position:'absolute',objectFit:'fill',width:view.width+'%',height:view.height+'%',left:view.left+'%',top:view.top+'%'});
   art.style.width=size.width+'px';art.style.height=size.height+'px';
  };

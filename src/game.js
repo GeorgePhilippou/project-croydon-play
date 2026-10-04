@@ -1,13 +1,17 @@
-import { bindView } from './view.js?v=8ff3ceb3dc77';
-import { rooms, scenes, startScene } from './scenes.js?v=8ff3ceb3dc77';
-import { createNavigator } from './navigation.js?v=8ff3ceb3dc77';
-import { bindInput } from './input.js?v=8ff3ceb3dc77';
-import { createMission } from './mission.js?v=8ff3ceb3dc77';
-import { objects, pickTarget } from './objects.js?v=8ff3ceb3dc77';
-import { hunts } from './hunts.js?v=8ff3ceb3dc77';
-import { createProgress } from './progress.js?v=8ff3ceb3dc77';
-import { visibleHotspots, toggleCover } from './search.js?v=8ff3ceb3dc77';
-import { createAudio } from './audio.js?v=8ff3ceb3dc77';
+import { bindView } from './view.js?v=9f8157d5a6c0';
+import { rooms, scenes, startScene } from './scenes.js?v=9f8157d5a6c0';
+import { createNavigator } from './navigation.js?v=9f8157d5a6c0';
+import { bindInput } from './input.js?v=9f8157d5a6c0';
+import { createMission } from './mission.js?v=9f8157d5a6c0';
+import { objects, pickTarget } from './objects.js?v=9f8157d5a6c0';
+import { hunts } from './hunts.js?v=9f8157d5a6c0';
+import { createProgress } from './progress.js?v=9f8157d5a6c0';
+import { visibleHotspots, toggleCover } from './search.js?v=9f8157d5a6c0';
+import { createAudio } from './audio.js?v=9f8157d5a6c0';
+import { createAssetCache,loadImage,nearbyAssets } from './assets.js?v=9f8157d5a6c0';
+import { physicalLayers } from './layers.js?v=9f8157d5a6c0';
+const assets=createAssetCache(loadImage);
+let loadingNotice=null;
 const nav=createNavigator(scenes,startScene), mission=createMission(), audio=createAudio();
 const $=id=>document.getElementById(id);
 let storage;try{storage=window.localStorage;}catch{}
@@ -21,9 +25,9 @@ function collection(){return `${placeCount()}/${rooms.length} places · ${discov
 function render(){
  const scene=nav.current;
  $('artwork').dataset.crop=JSON.stringify(scene.crop??null);
- $('backdrop').src=scene.background;
- document.dispatchEvent(new Event('sceneviewchange'));
+ if($('backdrop').getAttribute('src')!==scene.background){$('backdrop').dataset.failed='';$('backdrop').src=scene.background;}
  $('scene').dataset.detail=scene.detail?'true':'false';
+ document.dispatchEvent(new Event('sceneviewchange'));
  $('scene-fill').style.backgroundImage=`url("${scene.background}")`;
  $('backdrop').alt=`${scene.name}. ${scene.description}`;
  $('scene').dataset.scene=scene.id;
@@ -34,9 +38,16 @@ function render(){
  $('hotspots').replaceChildren();$('return-zone').hidden=!nav.canBack;
  $('return-zone').setAttribute('aria-label',scene.detail?'Return to previous inspection':'Return to previous scene');
  $('return-zone').querySelector('span').textContent='↓ Step back';
- if(scene.compartment&&opened.has(scene.compartment.when)){const box=document.createElement('div');box.className='drawer-interior';box.setAttribute('aria-hidden','true');position(box,scene.compartment);$('hotspots').append(box);}
+ for(const layer of physicalLayers(scene,scenes,opened)){
+  if(layer.kind==='cover'&&layer.origin===scene.id)continue;
+  const el=document.createElement(layer.kind==='sprite'?'img':'div');
+  el.className=layer.kind==='sprite'?'prop-sprite':layer.kind==='interior'?`drawer-interior ${layer.origin!==scene.id?'scenery-interior':''}`:`search-cover cover-${layer.kindName} scenery-cover`;
+  el.setAttribute('aria-hidden','true');position(el,layer);
+  if(layer.kind==='sprite'){el.src=objects[layer.object].image;el.dataset.prop=layer.object;}
+  if(layer.coverArt){const img=document.createElement('img');img.src=layer.coverArt;img.alt='';el.append(img);}
+  $('hotspots').append(el);
+ }
  for(const h of visibleHotspots(scene,opened)){
-  if(h.sprite){const img=document.createElement('img');img.src=objects[h.object].image;img.alt='';img.className='prop-sprite';position(img,h);$('hotspots').append(img);}
   const button=document.createElement('button');
   const label=document.createElement('span');label.textContent=h.object?'⌕':h.label;button.append(label);
   button.className=h.cover?`search-cover cover-${h.kind}`:h.object?'object-hotspot':h.detail?'area-hotspot':'door-hotspot';
@@ -44,6 +55,7 @@ function render(){
   button.setAttribute('aria-label',h.label);position(button,h);
   if(h.coverArt){const img=document.createElement('img');img.src=h.coverArt;img.alt='';button.append(img);}
   button.addEventListener('click',()=>{
+   if($('scene').classList.contains('is-loading')||$('scene').classList.contains('load-error'))return;
    if(['won','lost'].includes(mission.status.state)){updateTimer();return;}
    if(h.cover){toggleCover(opened,h.cover);audio.effect('paper');render();$('status').textContent='Moved aside. Look carefully underneath.';}
    else if(h.object)inspect(h.object);
@@ -51,10 +63,15 @@ function render(){
   });$('hotspots').append(button);
  }
  audio.setRoom(scene.room);
- $('scene').classList.toggle('is-loading',!$('backdrop').complete||!$('backdrop').naturalWidth);
+ for(const img of $('artwork').querySelectorAll('img')){img.addEventListener('load',syncLoading,{once:true});img.addEventListener('error',()=>{img.dataset.failed='true';syncLoading();},{once:true});}
+ syncLoading();
+ assets.request(scene.background,true);
+ for(const url of nearbyAssets(scene,scenes,objects))assets.request(url);
+
  $('scene').classList.remove('is-changing');void $('scene').offsetWidth;$('scene').classList.add('is-changing');updateTimer();
 }
 function inspect(object){
+ if($('scene').classList.contains('is-loading')||$('scene').classList.contains('load-error'))return;
  if(!visibleHotspots(nav.current,opened).some(h=>h.object===object))return;
  const prop=objects[object],status=mission.status;
  if(['won','lost'].includes(status.state)){updateTimer();return;}
@@ -71,7 +88,7 @@ function inspect(object){
 }
 function updateTimer(){
  const status=mission.status,target=objects[status.target];
- $('timer').textContent=status.state==='running'?`${Math.ceil(status.remaining/1000)}s`:status.state==='paused'?'PAUSED':status.state==='won'?'FOUND':status.state==='lost'?'TIME UP':'EXPLORE';
+ $('timer').textContent=status.state==='running'?`${Math.ceil(status.remaining/1000)}s`:status.state==='paused'?(status.pauseReasons.includes('loading')?'LOADING':'PAUSED'):status.state==='won'?'FOUND':status.state==='lost'?'TIME UP':'EXPLORE';
  $('operation').textContent=selectedHunt?selectedHunt.name.toUpperCase():target?`OPERATION: ${target.operation.toUpperCase()}`:'AT HOME IN FLAT 5';
  $('mission-line').textContent=['running','paused'].includes(status.state)?`${status.collected.length}/${status.targets.length} · Find ${status.pending.map(id=>objects[id].name).join(', ')}.`:'Explore the flat at your own pace.';
  $('timer').classList.toggle('urgent',status.state==='running'&&status.remaining<=10000);
@@ -129,7 +146,16 @@ async function sound(value){const enabled=await audio.setEnabled(value);progress
 $('sound').addEventListener('click',()=>sound(!audio.enabled));
 if(progress.snapshot.sound)document.addEventListener('pointerdown',()=>sound(true),{once:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)audio.suspend().catch(()=>{});else audio.resume();});
-$('backdrop').addEventListener('load',()=>$('scene').classList.remove('is-loading'));
-$('backdrop').addEventListener('error',()=>{$('scene').classList.remove('is-loading');$('status').textContent='Room artwork could not load. Check your connection and reload.';});
-// Load only the opening view initially; remaining art loads when visited.
+function syncLoading(){
+ const images=[...$('artwork').querySelectorAll('img')],failed=images.some(img=>img.dataset.failed==='true'),loading=!failed&&images.some(img=>!img.complete||!img.naturalWidth);
+ $('scene').classList.toggle('is-loading',loading);$('scene').classList.toggle('load-error',failed);$('retry-art').hidden=!failed;
+ clearTimeout(loadingNotice);if(!loading)$('scene').classList.remove('show-loading');else loadingNotice=setTimeout(()=>{$('scene').classList.add('show-loading');},250);
+ for(const button of $('hotspots').querySelectorAll('button'))button.disabled=loading||failed;
+ if(loading||failed)mission.pause('loading');else mission.resume('loading');
+ if(failed)$('status').textContent='Artwork could not load. Retry the room before searching.';
+}
+$('retry-art').addEventListener('click',()=>{$('backdrop').removeAttribute('src');render();});
+// Warm connected overview rooms while the opening dialog is on screen; detail
+// art/foreground props are queued for the current room as the player approaches.
+for(const scene of Object.values(scenes).filter(s=>!s.detail))assets.request(scene.background);
 bindView();setInterval(updateTimer,100);render();$('start-dialog').showModal();
