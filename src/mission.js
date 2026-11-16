@@ -1,4 +1,4 @@
-import { objects } from './objects.js?v=1111402e68f3';
+import { objects } from './objects.js?v=0561f2efa06f';
 // One deadline covers all targets; discoveries may be collected in any order.
 export function createMission(now = () => performance.now()) {
  let state='idle',targets=[],collected=[],lastCollected=null,started=0,deadline=0,elapsed=0,pausedAt=0;

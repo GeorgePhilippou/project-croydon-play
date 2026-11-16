@@ -1,4 +1,4 @@
-import {backgroundAssets} from './backgrounds.js?v=1111402e68f3';
+import {backgroundAssets} from './backgrounds.js?v=0561f2efa06f';
 // Deduplicate requests and warm compressed assets before the next doorway tap.
 export function createAssetCache(load,concurrency=3){
  const entries=new Map(),queue=[];let active=0;
